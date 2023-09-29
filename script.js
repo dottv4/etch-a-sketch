@@ -1,12 +1,4 @@
 const container = document.querySelector('.container');
-// function makeGrid() {
-//     for (let i = 0; i < 256; i++) {
-//         let row = document.createElement('div');
-//         row.className = 'gridItem';  
-//         container.appendChild(row);
-//     };
-// };
-//  makeGrid();
 
 function random(number) {
     return Math.floor(Math.random() * (number + 1));
@@ -20,50 +12,72 @@ const changeColor = function() {
 function inputGrid(row, col) {
     for (let i = 0; i < (row * col); i++) {
         let cell = document.createElement('div');
-        //cell.textContent = (i +1);
         cell.className = 'gridItem';
         container.style.cssText = `grid-template-columns: repeat(${row}, 50px); grid-template-rows: repeat(${col}, 50px);`;
         container.appendChild(cell);
     }
+    
+    let clicked = false;
+    const gridItems = document.querySelectorAll('.gridItem');
+    const clearBtn = document.getElementById('clear');
+    const testBtn = document.querySelector('#test');
+    testBtn.textContent = 'RGB Mode'
+
+
+    gridItems.forEach(item => {
+        item.addEventListener('mouseover', () => {
+            item.style.backgroundColor = '#555555'
+        })
+    });
+
+    clearBtn.addEventListener('click', () => {
+        gridItems.forEach(item => {
+            item.removeAttribute('style');
+        })
+    });
+
+    testBtn.addEventListener('click', () => {
+        if (clicked === false) {
+        gridItems.forEach(item => {
+            item.addEventListener('mouseover', () => {
+                item.style.backgroundColor = changeColor();
+            });
+        })
+       clicked = true;
+        } else {
+            gridItems.forEach(item => {
+                item.addEventListener('mouseover', () => {
+                    item.style.backgroundColor = '#555555';
+                });
+            });
+        clicked = false;   
+        };
+    });
 };
 
 const popUpBtn = document.querySelector('#popUp');
 popUpBtn.addEventListener('click', () => {
      let row = window.parseInt(prompt('Enter the number of rows for the new grid'), 10);
      let col = window.parseInt(prompt('Enter the number of columns for the new grid'), 10);
-     if (row > 100) {
-        alert('Use numbers less than 100')
+     if (row > 100 || col > 100) {
+        alert('Use numbers less than 100');
         return
-     } else if (col > 100) {
-        alert('Use numbers less than 100')
+     } else if (row || col) {
+        removeGrid();
+        inputGrid(row, col);
+     } else {
         return
      }
-     inputGrid(row, col);
 });
 
 inputGrid(16, 16);
 const testBtn = document.querySelector('#test');
 testBtn.textContent = 'RGB Mode'
 
-testBtn.addEventListener('click', () => {
-    gridItems.forEach(item => {
-        item.addEventListener('mouseover', () => {
-            item.style.backgroundColor = changeColor();
-        });
-    });
-});
+function removeGrid() {
+    const grid = document.querySelector('.container')
 
-const clearBtn = document.getElementById('clear');
-const gridItems = document.querySelectorAll('.gridItem');
-
-clearBtn.addEventListener('click', () => {
-    gridItems.forEach(item => {
-        item.removeAttribute('style');
-    })
-});
-
-gridItems.forEach(item => {
-    item.addEventListener('mouseover', () => {
-        item.style.backgroundColor = 'lightgreen'
-    })
-})
+    while (grid.hasChildNodes()) {
+        grid.removeChild(grid.firstChild);
+    }
+};

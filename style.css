@@ -10,9 +10,9 @@ body {
 
 .container {
     display: grid;
-    /* grid-template-columns: repeat(16, 50px);
-    grid-template-rows: repeat(24, 50px); */
     justify-content: center;
+    width: 800px;
+    height: 800px;
 }
  
 .gridItem {
