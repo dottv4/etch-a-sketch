@@ -1,83 +1,86 @@
-const container = document.querySelector('.container');
+const DEFAULT_COLOR = '#555555'
+const DEFAULT_MODE = 'color'
+const DEFAULT_SIZE = '16'
 
-function random(number) {
-    return Math.floor(Math.random() * (number + 1));
-};
+let currentColor = DEFAULT_COLOR
+let currentMode = DEFAULT_MODE
+let currentSize = DEFAULT_SIZE
 
-const changeColor = function() {
-    const color = `rgb(${random(255)}, ${random(255)}, ${random(255)})`;
-    return color
-};
+function setCurrentColor(newColor) {
+    currentColor = newColor
+}
 
-function inputGrid(row, col) {
-    for (let i = 0; i < (row * col); i++) {
-        let cell = document.createElement('div');
-        cell.className = 'gridItem';
-        container.style.cssText = `grid-template-columns: repeat(${row}, 50px); grid-template-rows: repeat(${col}, 50px);`;
-        container.appendChild(cell);
-    }
-    
-    let clicked = false;
-    const gridItems = document.querySelectorAll('.gridItem');
-    const clearBtn = document.getElementById('clear');
-    const testBtn = document.querySelector('#test');
-    testBtn.textContent = 'RGB Mode'
+function setCurrentMode(newMode) {
+    currentMode = newMode 
+}
 
+function setCurrentSize(newSize) {
+    currentSize = newSize
+}
 
-    gridItems.forEach(item => {
-        item.addEventListener('mouseover', () => {
-            item.style.backgroundColor = '#555555'
-        })
-    });
+const colorBtn = document.getElementById('color')
+const rgbBtn = document.getElementById('rgb')
+const clearBtn = document.getElementById('clear')
+const newGridBtn = document.getElementById('nGrid')
+const grid = document.getElementById('grid')
 
-    clearBtn.addEventListener('click', () => {
-        gridItems.forEach(item => {
-            item.removeAttribute('style');
-        })
-    });
+colorBtn.onclick = () => setCurrentMode('color')
+rgbBtn.onclick = () => setCurrentMode('rainbow')
+clearBtn.onclick = () => reloadGrid()
+newGridBtn.onclick = () => input()
 
-    testBtn.addEventListener('click', () => {
-        if (clicked === false) {
-        gridItems.forEach(item => {
-            item.addEventListener('mouseover', () => {
-                item.style.backgroundColor = changeColor();
-            });
-        })
-       clicked = true;
-        } else {
-            gridItems.forEach(item => {
-                item.addEventListener('mouseover', () => {
-                    item.style.backgroundColor = '#555555';
-                });
-            });
-        clicked = false;   
-        };
-    });
-};
+let mouseDown = false
+document.body.onmousedown = () => (mouseDown = true)
+document.body.onmouseup = () => (mouseDown = false)
 
-const popUpBtn = document.querySelector('#popUp');
-popUpBtn.addEventListener('click', () => {
-     let row = window.parseInt(prompt('Enter the number of rows for the new grid'), 10);
-     let col = window.parseInt(prompt('Enter the number of columns for the new grid'), 10);
-     if (row > 100 || col > 100) {
-        alert('Use numbers less than 100');
+function input() {
+    let input = window.parseInt(prompt('Enter the number for the new grid'), 10)
+    if (input > 100) {
+        alert('Use numbers less than 100')
         return
-     } else if (row || col) {
-        removeGrid();
-        inputGrid(row, col);
-     } else {
+    } else if (input) {
+    currentSize = input
+    clearGrid()
+    setupGrid(currentSize)
+    } else {
         return
-     }
-});
-
-inputGrid(16, 16);
-const testBtn = document.querySelector('#test');
-testBtn.textContent = 'RGB Mode'
-
-function removeGrid() {
-    const grid = document.querySelector('.container')
-
-    while (grid.hasChildNodes()) {
-        grid.removeChild(grid.firstChild);
     }
-};
+}
+
+function reloadGrid() {
+    clearGrid()
+    setupGrid(currentSize)
+}
+
+function clearGrid() {
+    grid.innerHTML = ''
+}
+
+function setupGrid (size) {
+    grid.style.gridTemplateColumns = `repeat(${size}, 1fr)`
+    grid.style.gridTemplateRows = `repeat(${size}, 1fr)`
+
+    for (let i = 0; i < size * size; i++) {
+        const gridElement = document.createElement('div')
+        gridElement.classList.add('gridItem')
+        gridElement.addEventListener('mousedown', changeColor)
+        gridElement.addEventListener('mouseover', changeColor)
+        grid.appendChild(gridElement)
+    }
+}
+
+function changeColor(e) {
+    if (e.type === 'mouseover' && !mouseDown) return
+    if (currentMode === 'rainbow') {
+        const randomR = Math.floor(Math.random() * 256)
+        const randomG = Math.floor(Math.random() * 256)
+        const randomB = Math.floor(Math.random() * 256)
+        e.target.style.backgroundColor = `rgb(${randomR}, ${randomG}, ${randomB})`
+    } else if (currentMode === 'color') {
+        e.target.style.backgroundColor = currentColor
+    }
+}
+
+window.onload = () => {
+    setupGrid(DEFAULT_SIZE)
+}
